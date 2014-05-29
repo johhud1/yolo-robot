@@ -1,4 +1,4 @@
-import csv, re
+import csv, re, argparse
 import urllib.request as req
 import xml.etree.ElementTree as ET
 #input must be arrays
@@ -17,11 +17,19 @@ baseUrl = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?"
 baseUrl = addTerm(baseUrl, dbKey, db)
 pattern = re.compile('[\W]+')
 
-with open('PubMed_Spreadsheet1.csv') as ss, open('Pubmed_counts.csv', 'wt') as ssWrite:
+parser = argparse.ArgumentParser(description="process the given csv, searching pubmed for publications by the listed authors")
+parser.add_argument('inputfilename', type=str, help='file name of input csv to be processed')
+parser.add_argument('outputfilename', type=str, help='file name of output csv, must be different from input')
+
+args = parser.parse_args()
+
+cntFieldName = 'Total Publications'
+
+with open(args.inputfilename) as ss, open(args.outputfilename, 'wt') as ssWrite:
     ssReader = csv.DictReader(ss)
     print(ssReader.fieldnames)
     fieldNames = ssReader.fieldnames
-    fieldNames.append('count')
+    fieldNames.append(cntFieldName)
     ssWriter = csv.DictWriter(ssWrite, fieldNames)
     ssWriter.writeheader()
     counts = list()
@@ -51,7 +59,7 @@ with open('PubMed_Spreadsheet1.csv') as ss, open('Pubmed_counts.csv', 'wt') as s
                 print("error in response from: " + url + " Site didn't interpret query as Author full name. instead was: " + fieldText)
             count = str(root.find('.//Count').text)
         print("count: " + count)
-        row['count'] = count
+        row[cntFieldName] = count
         ssWriter.writerow(row)
 
 
