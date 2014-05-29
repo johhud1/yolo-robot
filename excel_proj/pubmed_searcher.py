@@ -54,12 +54,13 @@ with open(args.inputfilename) as ss, open(args.outputfilename, 'wt') as ssWrite:
                     print('got ERROR: resp tag was' + child.tag)
                 count = 0
             field = root.find('.//Field')
-            if(field is not None and root.find('.//Field').text != 'Full Author Name'):
-                fieldText = root.find('.//Field').text
-                print("error in response from: " + url + " Site didn't interpret query as Author full name. instead was: " + fieldText)
-            count = str(root.find('.//Count').text)
-        print("count: " + count)
+            if(field is not None):
+                if(root.find('.//Field').text != 'Full Author Name'):
+                    fieldText = root.find('.//Field').text
+                    print("error in response from: " + url + " Site didn't interpret query as Author full name. instead was: " + fieldText)
+                    count = 0
+                else:
+                    count = str(root.find('.//Count').text)
+        print("count: " + str(count))
         row[cntFieldName] = count
         ssWriter.writerow(row)
-
-
